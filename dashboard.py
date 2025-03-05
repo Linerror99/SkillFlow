@@ -5,16 +5,21 @@ import requests
 import pandas as pd
 
 # Récupérer les statistiques depuis l'API SkillFlow
-API_URL = "https://stunning-tribble-7v9jx64rg46v3rqq5-8000.app.github.dev/dashboard/"
+API_URL = "http://127.0.0.1:8000/dashboard/"
+
 
 def fetch_data():
     try:
+        print(f"📌 Récupération des données depuis : {API_URL}")  # 🔍 Ajout debug
         response = requests.get(API_URL)
+        print(f"📌 Code de réponse : {response.status_code}")  # 🔍 Vérifier la réponse HTTP
+        print(f"📌 Contenu brut : {response.text}")  # 🔍 Voir la réponse complète
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Erreur lors de la récupération des données : {e}")
         return None
+
 
 # Lancer la récupération des stats
 data = fetch_data()
