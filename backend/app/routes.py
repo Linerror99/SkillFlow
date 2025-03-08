@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models import Project, Task
-from app.schemas import ProjectCreate, ProjectResponse, TaskCreate, TaskResponse
+from app.schemas import ProjectCreate, ProjectResponse, TaskCreate, TaskResponse,TaskUpdate
 from typing import List
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -150,3 +150,56 @@ def get_statistics(db: Session = Depends(get_db)):
         "projects_activity": projects_activity,
         "overdue_tasks": overdue_tasks,
     }
+
+### 📌 Modifier un projet
+@router.put("/projects/{project_id}", response_model=ProjectResponse)
+def update_project(project_id: int, project_update: ProjectCreate, db: Session = Depends(get_db)):
+    db_project = db.query(Project).filter(Project.id == project_id).first()
+    if not db_project:
+        raise HTTPException(status_code=404, detail="Projet non trouvé")
+
+    db_project.name = project_update.name
+    db_project.description = project_update.description
+
+    db.commit()
+    db.refresh(db_project)
+    return db_project
+
+
+### 📌 Supprimer un projet
+@router.delete("/projects/{project_id}")
+def delete_project(project_id: int, db: Session = Depends(get_db)):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Projet non trouvé")
+
+    db.delete(project)
+    db.commit()
+    return {"message": "Projet supprimé"}
+
+### 📌 Modifier une tâche (Titre, Description, Date d’échéance, Statut)
+@router.put("/tasks/{task_id}", response_model=TaskResponse)
+def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db)):
+    db_task = db.query(Task).filter(Task.id == task_id).first()
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Tâche non trouvée")
+
+    # Mise à jour uniquement des champs fournis
+    for field, value in task_update.dict(exclude_unset=True).items():
+        setattr(db_task, field, value)
+
+    db.commit()
+    db.refresh(db_task)
+    return db_task
+
+
+### 📌 Supprimer une tâche
+@router.delete("/tasks/{task_id}")
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    db_task = db.query(Task).filter(Task.id == task_id).first()
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Tâche non trouvée")
+
+    db.delete(db_task)
+    db.commit()
+    return {"message": "Tâche supprimée"}

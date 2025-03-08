@@ -3,7 +3,7 @@ from app.models import Project, Task  # Import des modèles
 
 def init_db():
     print("📌 Création des tables en cours...")
-    Base.metadata.drop_all(bind=engine)  # Supprime les tables existantes
+    //Base.metadata.drop_all(bind=engine)  # Supprime les tables existantes
     Base.metadata.create_all(bind=engine)  # Recrée les tables
     print("✅ Base de données initialisée avec succès !")
 

@@ -31,7 +31,7 @@ class Task(Base):
     status = Column(Enum(TaskStatus), default=TaskStatus.TODO)
     
     created_at = Column(DateTime, server_default=func.now())  # 📌 Ajout de la date de création
-    completed_at = Column(DateTime, nullable=True)  # 📌 Ajout de la date de complétion
+    updated_at = Column(DateTime, onupdate=func.now())  # Ajout du suivi de la mise à jour
 
     project_id = Column(Integer, ForeignKey("projects.id"))
     project = relationship("Project", back_populates="tasks")

@@ -50,6 +50,25 @@ const Tasks = () => {
     }
   };
 
+  const handleDeleteTask = async (id) => {
+    try {
+      await axios.delete(`/tasks/${id}`);
+      setTasks(tasks.filter(task => task.id !== id));
+    } catch (error) {
+      console.error("❌ Erreur lors de la suppression de la tâche", error);
+    }
+  };
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+        await axios.put(`/tasks/${id}`, { status: newStatus });  // ✅ Avec TaskUpdate, cela fonctionne
+        setTasks(tasks.map(task => (task.id === id ? { ...task, status: newStatus } : task)));
+    } catch (error) {
+        console.error("❌ Erreur lors de la mise à jour du statut de la tâche", error);
+    }
+};
+
+
   return (
     <div className="tasks-container">
       <h2>✅ Gestion des Tâches</h2>
@@ -91,9 +110,7 @@ const Tasks = () => {
           ))}
         </select>
 
-        <button className="add-btn" onClick={handleAddTask}>
-          ➕ Ajouter
-        </button>
+        <button className="add-btn" onClick={handleAddTask}>➕ Ajouter</button>
       </div>
 
       <ul className="tasks-list">
@@ -101,6 +118,12 @@ const Tasks = () => {
           <li key={task.id} className="task-item">
             <div>
               <strong>{task.title}</strong> - {task.description} (📅 {task.due_date})
+              <select value={task.status} onChange={(e) => handleStatusChange(task.id, e.target.value)}>
+                <option value="À faire">À faire</option>
+                <option value="En cours">En cours</option>
+                <option value="Terminé">Terminé</option>
+              </select>
+              <button onClick={() => handleDeleteTask(task.id)}>🗑️ Supprimer</button>
             </div>
           </li>
         ))}

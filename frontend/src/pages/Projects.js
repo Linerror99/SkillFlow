@@ -6,7 +6,6 @@ const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [newProject, setNewProject] = useState({ name: "", description: "" });
 
-  // Charger les projets existants
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -34,6 +33,15 @@ const Projects = () => {
     }
   };
 
+  const handleDeleteProject = async (id) => {
+    try {
+      await axios.delete(`/projects/${id}`);
+      setProjects(projects.filter(project => project.id !== id));
+    } catch (error) {
+      console.error("❌ Erreur lors de la suppression du projet", error);
+    }
+  };
+
   return (
     <div className="projects-container">
       <h2>📁 Gestion des Projets</h2>
@@ -58,6 +66,7 @@ const Projects = () => {
         {projects.map((project) => (
           <li key={project.id} className="project-item">
             <strong>{project.name}</strong> - {project.description}
+            <button onClick={() => handleDeleteProject(project.id)}>🗑️ Supprimer</button>
           </li>
         ))}
       </ul>

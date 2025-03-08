@@ -35,3 +35,10 @@ class ProjectResponse(ProjectCreate):
 
     class Config:
         orm_mode = True
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    due_date: Optional[date] = None
+    status: Optional[str] = None  # Permet de ne mettre à jour que le statut
+    project_id: Optional[int] = None
