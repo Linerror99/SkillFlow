@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 from typing import List, Optional
 import enum
@@ -40,5 +40,8 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     due_date: Optional[date] = None
-    status: Optional[str] = None  # Permet de ne mettre à jour que le statut
+    status: Optional[str] = None
     project_id: Optional[int] = None
+
+    class Config:
+        from_attributes = True  # Remplace `orm_mode` pour Pydantic v2

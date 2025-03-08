@@ -59,12 +59,12 @@ const Tasks = () => {
     }
   };
 
-  const handleStatusChange = async (id, newStatus) => {
+  const handleStatusUpdate = async (task) => {
     try {
-        await axios.put(`/tasks/${id}`, { status: newStatus });  // ✅ Avec TaskUpdate, cela fonctionne
-        setTasks(tasks.map(task => (task.id === id ? { ...task, status: newStatus } : task)));
+        await axios.put(`${process.env.REACT_APP_API_URL}/tasks/${task.id}`, { status: task.status });
+        fetchTasks();  // Rafraîchir la liste après modification
     } catch (error) {
-        console.error("❌ Erreur lors de la mise à jour du statut de la tâche", error);
+        console.error("Erreur lors de la mise à jour du statut de la tâche", error);
     }
 };
 
@@ -118,11 +118,12 @@ const Tasks = () => {
           <li key={task.id} className="task-item">
             <div>
               <strong>{task.title}</strong> - {task.description} (📅 {task.due_date})
-              <select value={task.status} onChange={(e) => handleStatusChange(task.id, e.target.value)}>
+              <select value={task.status} onChange={(e) => setTasks(tasks.map(t => t.id === task.id ? { ...t, status: e.target.value } : t))}>
                 <option value="À faire">À faire</option>
                 <option value="En cours">En cours</option>
                 <option value="Terminé">Terminé</option>
               </select>
+              <button onClick={() => handleStatusUpdate(task)}>✔ Mettre à jour</button>
               <button onClick={() => handleDeleteTask(task.id)}>🗑️ Supprimer</button>
             </div>
           </li>
