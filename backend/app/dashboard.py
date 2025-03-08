@@ -3,6 +3,7 @@ from dash import dcc, html
 import plotly.express as px
 import requests
 import pandas as pd
+import os
 
 # 📌 URL de l'API FastAPI (Docker-friendly)
 API_URL = os.getenv("API_URL", "http://backend:8000/dashboard/")
