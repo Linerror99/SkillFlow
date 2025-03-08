@@ -4,8 +4,8 @@ import plotly.express as px
 import requests
 import pandas as pd
 
-# 📌 URL de l'API FastAPI
-API_URL = "http://localhost:8000/dashboard/"
+# 📌 URL de l'API FastAPI (Docker-friendly)
+API_URL = os.getenv("API_URL", "http://backend:8000/dashboard/")
 
 # 🔄 Récupérer les statistiques depuis l'API
 def fetch_data():
@@ -44,4 +44,4 @@ if data:
     ])
 
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8050)
+    app.run_server(debug=True, host="0.0.0.0", port=8050)

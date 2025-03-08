@@ -1,18 +1,43 @@
 version: '3.8'
 
 services:
-  api:
-    build: .
+  backend:
+    build: ./backend
     container_name: skillflow_api
     ports:
       - "8000:8000"
     depends_on:
       - db
     environment:
-      DATABASE_URL: "postgresql://skillflow_user:password@db:5432/skillflow_db"
+      DATABASE_URL: "postgresql://postgres:password@db:5432/skillflow_db"
     volumes:
-      - .:/app
+      - ./backend:/app
     restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: skillflow_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      REACT_APP_API_URL: "http://localhost:8000"
+    command: ["npm", "start"]
+
+  dashboard:
+    build: ./backend
+    container_name: skillflow_dashboard
+    depends_on:
+      - backend
+    ports:
+      - "8050:8050"
+    environment:
+      - API_URL=http://backend:8000/dashboard/
+    command: ["python", "app/dashboard.py"]
 
   db:
     image: postgres:16
@@ -20,7 +45,7 @@ services:
     restart: always
     environment:
       POSTGRES_DB: skillflow_db
-      POSTGRES_USER: skillflow_user
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
