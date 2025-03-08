@@ -1,8 +1,15 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Date, Enum
 from sqlalchemy.orm import relationship
-from .database import Base  # Utiliser un import relatif pour éviter le problème
+from .database import Base  # Import relatif pour éviter les erreurs
 import enum
 
+# Définition du statut des tâches
+class TaskStatus(str, enum.Enum):
+    TODO = "À faire"
+    IN_PROGRESS = "En cours"
+    DONE = "Terminé"
+
+# Modèle de projet
 class Project(Base):
     __tablename__ = "projects"
 
@@ -10,14 +17,7 @@ class Project(Base):
     name = Column(String, nullable=False, unique=True)
     description = Column(Text, nullable=True)
 
-
-# Enum pour le statut de la tâche
-class TaskStatus(str, enum.Enum):
-    TODO = "À faire"
-    IN_PROGRESS = "En cours"
-    DONE = "Terminé"
-
-# Modèle pour les tâches associées aux projets
+# Modèle de tâche
 class Task(Base):
     __tablename__ = "tasks"
 
@@ -30,5 +30,5 @@ class Task(Base):
     project_id = Column(Integer, ForeignKey("projects.id"))
     project = relationship("Project", back_populates="tasks")
 
-# Ajouter la relation entre projets et tâches
+# Relation entre projets et tâches
 Project.tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")

@@ -3,8 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# URL de connexion à PostgreSQL
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://skillflow_admin:password@localhost/skillflow_db")
+# URL de connexion à PostgreSQL (change localhost par ton serveur distant si nécessaire)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@db:5432/skillflow_db")
 
 # Création du moteur SQLAlchemy
 engine = create_engine(DATABASE_URL)

@@ -1,5 +1,5 @@
 from app.database import Base, engine
-from app.models import Project, Task  # Importer les modèles
+from app.models import Project, Task  # Import des modèles
 
 def init_db():
     print("📌 Création des tables en cours...")
