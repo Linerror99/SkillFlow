@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Date, Enum
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Date, Enum, DateTime, func
 from sqlalchemy.orm import relationship
 from .database import Base  # Import relatif pour éviter les erreurs
 import enum
@@ -17,6 +17,9 @@ class Project(Base):
     name = Column(String, nullable=False, unique=True)
     description = Column(Text, nullable=True)
 
+    # Relation avec les tâches
+    tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
+
 # Modèle de tâche
 class Task(Base):
     __tablename__ = "tasks"
@@ -26,9 +29,9 @@ class Task(Base):
     description = Column(String, nullable=True)
     due_date = Column(Date, nullable=False)
     status = Column(Enum(TaskStatus), default=TaskStatus.TODO)
+    
+    created_at = Column(DateTime, server_default=func.now())  # 📌 Ajout de la date de création
+    completed_at = Column(DateTime, nullable=True)  # 📌 Ajout de la date de complétion
 
     project_id = Column(Integer, ForeignKey("projects.id"))
     project = relationship("Project", back_populates="tasks")
-
-# Relation entre projets et tâches
-Project.tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")

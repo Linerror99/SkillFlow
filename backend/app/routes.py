@@ -4,6 +4,8 @@ from app.database import SessionLocal
 from app.models import Project, Task
 from app.schemas import ProjectCreate, ProjectResponse, TaskCreate, TaskResponse
 from typing import List
+from datetime import datetime, timedelta
+from collections import defaultdict
 
 router = APIRouter()
 
@@ -98,4 +100,53 @@ def get_dashboard(db: Session = Depends(get_db)):
             "in_progress": tasks_in_progress,
             "done": tasks_done
         }
+    }
+
+@router.get("/stats/")
+def get_statistics(db: Session = Depends(get_db)):
+    total_projects = db.query(Project).count()
+    total_tasks = db.query(Task).count()
+
+    # Répartition des statuts des tâches
+    tasks_status = {
+        "todo": db.query(Task).filter(Task.status == "À faire").count(),
+        "in_progress": db.query(Task).filter(Task.status == "En cours").count(),
+        "done": db.query(Task).filter(Task.status == "Terminé").count(),
+    }
+
+    projects_completion = {}
+    for project in db.query(Project).all():
+        total_tasks_project = db.query(Task).filter(Task.project_id == project.id).count()
+        done_tasks_project = db.query(Task).filter(Task.project_id == project.id, Task.status == "Terminé").count()
+        completion_rate = (done_tasks_project / total_tasks_project * 100) if total_tasks_project > 0 else 0
+        projects_completion[project.name] = completion_rate
+
+    now = datetime.now()
+    tasks_created_per_day = defaultdict(int)
+    tasks_completed_per_day = defaultdict(int)
+
+    for task in db.query(Task).all():
+        if hasattr(task, "created_at") and task.created_at:
+            created_date = task.created_at.strftime("%Y-%m-%d")
+            tasks_created_per_day[created_date] += 1
+
+        if hasattr(task, "completed_at") and task.completed_at:
+            completed_date = task.completed_at.strftime("%Y-%m-%d")
+            tasks_completed_per_day[completed_date] += 1
+
+    projects_activity = {}
+    for project in db.query(Project).all():
+        projects_activity[project.name] = db.query(Task).filter(Task.project_id == project.id).count()
+
+    overdue_tasks = db.query(Task).filter(Task.due_date < now, Task.status != "Terminé").count()
+
+    return {
+        "total_projects": total_projects,
+        "total_tasks": total_tasks,
+        "tasks_status": tasks_status,
+        "projects_completion": projects_completion,
+        "tasks_created_per_day": dict(tasks_created_per_day),
+        "tasks_completed_per_day": dict(tasks_completed_per_day),
+        "projects_activity": projects_activity,
+        "overdue_tasks": overdue_tasks,
     }
