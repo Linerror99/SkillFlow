@@ -1,26 +1,24 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import LoginPage from "./pages/LoginPage";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Navbar from "./components/Navbar"; // Assure-toi que le chemin est correct
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import Projects from "./pages/Projects";
-import Tasks from "./pages/Tasks";  // ✅ Vérifie bien que le fichier Tasks.js est dans /pages
-import "./styles/App.css";
 
 const App = () => {
-  return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
-    </Router>
-  );
+    const token = localStorage.getItem("token"); // 🔥 Vérifie si l'utilisateur est connecté
+
+    return (
+        <Router>
+            <Navbar /> {/* 🔥 La navbar doit être affichée en permanence */}
+            <Routes>
+                <Route path="/" element={token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/login" />} />
+            </Routes>
+        </Router>
+    );
 };
 
 export default App;

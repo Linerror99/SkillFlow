@@ -1,43 +1,45 @@
-annotated-types==0.7.0
-anyio==4.8.0
-blinker==1.9.0
-certifi==2025.1.31
-charset-normalizer==3.4.1
-click==8.1.8
-dash==2.18.2
-dash-core-components==2.0.0
-dash-html-components==2.0.0
-dash-table==5.0.0
-fastapi==0.115.11
-Flask==3.0.3
-greenlet==3.1.1
-h11==0.14.0
-idna==3.10
-importlib_metadata==8.6.1
-itsdangerous==2.2.0
-Jinja2==3.1.6
-MarkupSafe==3.0.2
-narwhals==1.29.0
-nest-asyncio==1.6.0
-numpy==2.2.3
-packaging==24.2
-pandas==2.2.3
-plotly==6.0.0
-psycopg2-binary==2.9.10
-pydantic==2.10.6
-pydantic_core==2.27.2
-python-dateutil==2.9.0.post0
-pytz==2025.1
-requests==2.32.3
-retrying==1.3.4
-setuptools==75.8.2
-six==1.17.0
-sniffio==1.3.1
-SQLAlchemy==2.0.38
-starlette==0.46.0
-typing_extensions==4.12.2
-tzdata==2025.1
-urllib3==2.3.0
-uvicorn==0.34.0
-Werkzeug==3.0.6
-zipp==3.21.0
+# FastAPI & Serveur ASGI
+fastapi==0.110.0
+uvicorn==0.29.0
+
+# Base de données avec SQLAlchemy et PostgreSQL
+sqlalchemy==2.0.29
+psycopg2-binary==2.9.9
+
+# Authentification & JWT
+python-jose==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+python-multipart==0.0.9  # Pour les formulaires (ex: login)
+
+# Sécurité & Gestion des tokens
+pyjwt==2.8.0
+cryptography==42.0.7
+
+# Outils pour les tâches & manipulation des dates
+pydantic==2.6.4
+pydantic-settings==2.1.0  # Gestion des variables d’environnement
+python-dotenv==1.0.1  # Pour charger les variables d'environnement (.env)
+
+# Requêtes HTTP & API Clients
+httpx==0.27.0
+requests==2.31.0
+
+# Dash (Tableau de bord)
+dash==2.16.1
+dash-bootstrap-components==1.5.0  # Pour améliorer l'UI du Dashboard
+
+# Graphiques et Visualisation de données
+plotly==5.20.0
+pandas==2.2.1
+numpy==1.26.4
+
+# WebSockets (si nécessaire)
+websockets==12.0
+
+# Tests et Développement
+pytest==8.1.1
+pytest-asyncio==0.23.6
+
+# Email
+email-validator==2.1.0.post1

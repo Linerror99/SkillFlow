@@ -8,4 +8,13 @@ const api = axios.create({
   baseURL: API_BASE_URL, 
 });
 
+// Ajouter le token à toutes les requêtes
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");  // 🔥 Vérifie bien le nom de la clé
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default api;

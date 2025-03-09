@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from datetime import date
 from typing import List, Optional
 import enum
@@ -45,3 +45,22 @@ class TaskUpdate(BaseModel):
 
     class Config:
         from_attributes = True  # Remplace `orm_mode` pour Pydantic v2
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    password: str
+
+class UserRead(BaseModel):
+    id: int
+    username: str
+    email: str
+
+class UserResponse(BaseModel):  # Assure-toi que cette classe existe
+    id: int
+    username: str
+    email: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str

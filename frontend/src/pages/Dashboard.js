@@ -1,38 +1,65 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { BarChart, Bar, PieChart, Pie, LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from "recharts";
+import axios from "../services/api";
+import { useNavigate } from "react-router-dom";
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+  ResponsiveContainer
+} from "recharts";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("token"); // Récupérer le token JWT
+
+    if (!token) {
+      navigate("/login"); // Rediriger si l'utilisateur n'est pas connecté
+      return;
+    }
+
     axios
-      .get(`${process.env.REACT_APP_API_URL}/stats/`)
+      .get("/stats/", {
+        headers: { Authorization: `Bearer ${token}` }, // Ajouter le token dans la requête API
+      })
       .then((response) => {
         setStats(response.data);
       })
       .catch((error) => {
-        console.error("Erreur lors de la récupération des stats", error);
+        console.error("❌ Erreur lors de la récupération des stats :", error);
+        if (error.response && error.response.status === 401) {
+          navigate("/login"); // Rediriger si l'authentification échoue
+        }
       });
-  }, []);
+  }, [navigate]);
 
   if (!stats) return <p>Chargement des statistiques...</p>;
 
-  // Données pour le PieChart - Répartition des statuts des tâches
+  // 📌 Données pour le PieChart - Répartition des statuts des tâches
   const taskStatusData = [
     { name: "À faire", value: stats.tasks_status.todo, fill: "#FF6384" },
     { name: "En cours", value: stats.tasks_status.in_progress, fill: "#36A2EB" },
     { name: "Terminé", value: stats.tasks_status.done, fill: "#4CAF50" },
   ];
 
-  // Données pour le BarChart - Activité des projets
+  // 📌 Données pour le BarChart - Activité des projets
   const projectActivityData = Object.keys(stats.projects_activity).map((key) => ({
     name: key,
     tasks: stats.projects_activity[key],
   }));
 
-  // Données pour le LineChart - Nombre de tâches créées par jour
+  // 📌 Données pour le LineChart - Nombre de tâches créées par jour
   const taskProgressData = Object.keys(stats.tasks_created_per_day).map((key) => ({
     date: key,
     created: stats.tasks_created_per_day[key] || 0,
@@ -42,6 +69,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <h2>📊 Tableau de Bord</h2>
+      <p>Bienvenue, {stats.user} 👋</p>
 
       <div className="stats-container">
         <div className="stat-box">

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Date, Enum, DateTime, func
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Date, Enum, DateTime, func, Boolean
 from sqlalchemy.orm import relationship
 from .database import Base  # Import relatif pour éviter les erreurs
 import enum
@@ -35,3 +35,13 @@ class Task(Base):
 
     project_id = Column(Integer, ForeignKey("projects.id"))
     project = relationship("Project", back_populates="tasks")
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)  # 👈 Ajout du champ username
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())  # Ajout de la date

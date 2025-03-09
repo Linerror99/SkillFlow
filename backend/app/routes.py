@@ -1,21 +1,56 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
-from app.models import Project, Task
-from app.schemas import ProjectCreate, ProjectResponse, TaskCreate, TaskResponse,TaskUpdate
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from app.database import SessionLocal, get_db
+from app.models import Project, Task, User
+from app.schemas import ProjectCreate, ProjectResponse, TaskCreate, TaskResponse,TaskUpdate, UserCreate, UserRead, UserResponse, LoginRequest
+from app.auth import authenticate_user, create_access_token, get_password_hash, hash_password, get_current_user
 from typing import List
 from datetime import datetime, timedelta
 from collections import defaultdict
 
 router = APIRouter()
 
-# Dépendance pour obtenir une session DB
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+@router.post("/register", response_model=UserRead)
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    hashed_password = get_password_hash(user.password)
+    db_user = User(email=user.email, hashed_password=hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+@router.post("/signup", response_model=UserResponse)
+def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    # Vérifier si l'utilisateur existe déjà
+    existing_user = db.query(User).filter(User.email == user.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Cet utilisateur existe déjà")
+
+    # Hasher le mot de passe
+    hashed_password = hash_password(user.password)
+
+    # Créer un nouvel utilisateur avec username, email et mot de passe
+    new_user = User(username=user.username, email=user.email, hashed_password=hashed_password)
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+
+@router.post("/token")
+def login(user: LoginRequest, db: Session = Depends(get_db)):
+    user_db = authenticate_user(db, user.email, user.password)
+    if not user_db:
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
 
 ### 📌 Routes pour les projets ###
 @router.post("/projects/", response_model=ProjectResponse)
@@ -68,15 +103,19 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
 
 ### 📌 Route pour le tableau de bord ###
 @router.get("/dashboard/")
-def get_dashboard(db: Session = Depends(get_db)):
+def get_dashboard(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)  # Vérifie l'utilisateur connecté
+):
     total_projects = db.query(Project).count()
     total_tasks = db.query(Task).count()
-    
+
     tasks_todo = db.query(Task).filter(Task.status == "À faire").count()
     tasks_in_progress = db.query(Task).filter(Task.status == "En cours").count()
     tasks_done = db.query(Task).filter(Task.status == "Terminé").count()
 
     return {
+        "user": current_user["email"],  # Affiche l'email de l'utilisateur connecté
         "total_projects": total_projects,
         "total_tasks": total_tasks,
         "tasks_status": {
@@ -85,6 +124,7 @@ def get_dashboard(db: Session = Depends(get_db)):
             "done": tasks_done
         }
     }
+
 
 @router.get("/stats/")
 def get_statistics(db: Session = Depends(get_db)):
