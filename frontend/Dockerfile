@@ -10,6 +10,9 @@ COPY package.json ./
 # Installer les dépendances (sans cache)
 RUN npm install
 
+# Vérification et installation des dépendances manquantes
+RUN npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/interaction --save
+
 # Copier tout le projet après l’installation
 COPY . .
 

@@ -6,6 +6,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Tasks from "./pages/Tasks";
+import Calendar from "./components/Calendar";
 import "./styles/App.css";
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
                 <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/login" />} />
                 <Route path="/projects" element={token ? <Projects /> : <Navigate to="/login" />} />
                 <Route path="/tasks" element={token ? <Tasks /> : <Navigate to="/login" />} />
+                <Route path="/calendar" element={token ? <Calendar /> : <Navigate to="/login" />} /> {/* 📌 Route pour le calendrier */}
             </Routes>
         </Router>
     );

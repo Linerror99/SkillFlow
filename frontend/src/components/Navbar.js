@@ -21,6 +21,7 @@ const Navbar = () => {
             <li><Link to="/dashboard">Dashboard</Link></li>
             <li><Link to="/projects">Projets</Link></li>
             <li><Link to="/tasks">Tâches</Link></li>
+            <li><Link to="/calendar">📅 Calendrier</Link></li> {/* 📌 Ajout du lien */}
             <li className="logout-btn" onClick={handleLogout}>🚪 Déconnexion</li>
           </>
         ) : ( // 🔥 Si l'utilisateur n'est PAS connecté

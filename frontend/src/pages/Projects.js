@@ -34,6 +34,7 @@ const Projects = () => {
   };
 
   const handleDeleteProject = async (id) => {
+    if (window.confirm("Voulez-vous vraiment supprimer ce projet ?")) {}
     try {
       await axios.delete(`/projects/${id}`);
       setProjects(projects.filter(project => project.id !== id));
